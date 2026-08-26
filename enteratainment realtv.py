@@ -36,18 +36,26 @@ ANALYTICS_WINDOW = 40  # recent videos per channel to analyse
 # Fill "id" (UC...) for any that fail to resolve by handle (Share → Copy ID).
 # ─────────────────────────────────────────────────────────────────────────────
 CHANNELS = [
+    # The RIGHT competitor set for a NEWS BRAND extending into entertainment:
+    # (a) Tollywood cinema-news / gossip / interview channels, and
+    # (b) established news channels' own entertainment output.
+    # This is the space Real TV can own with its newsroom credibility —
+    # NOT pure comedy/sketch channels, which are a different business.
+    #
     # label, handle, id, category
-    {"label": "Prashu Baby",       "handle": "@prashu223",        "id": None, "category": "Comedy/Sketch"},
-    {"label": "Harsha Sai",        "handle": "@HarshaSai",        "id": "UC5GFurOJpOms46X6IBEebLg", "category": "Inspiring/Viral"},
-    {"label": "Filmymoji",         "handle": "@Filmymoji",        "id": None, "category": "Film/Parody"},
-    {"label": "Shanmukh Jaswanth", "handle": "@ShanmukhJaswanth", "id": "UCjbBFvK04b-O3foSNabdrOA", "category": "Web Series/Vlog"},
-    {"label": "Tej India",         "handle": "@Tejindiaoriginals",         "id": None, "category": "Storytelling/Drama"},
-    {"label": "infobells Telugu",  "handle": "@infobellstelugurhymes",  "id": None, "category": "Kids"},
-    {"label": "Tips Telugu",       "handle": "@TipsTelugu",       "id": None, "category": "Film Music"},
-    {"label": "Aditya Music",      "handle": "@adityamusic",      "id": None, "category": "Film Music"},
-    # trendy-global format inspiration (localizable formats)
-    {"label": "Crazy XYZ",         "handle": "@CrazyXYZ",         "id": None, "category": "Experiments/Challenge"},
-    {"label": "MR. INDIAN HACKER", "handle": "@MRINDIANHACKER",   "id": None, "category": "Experiments/Challenge"},
+    # ── Tollywood cinema-news & gossip ──
+    {"label": "Tollywood Today",   "handle": "@TollywoodToday1",  "id": "UCsHThG1UJch6CXxlGpFx_Nw", "category": "Cinema News/Gossip"},
+    {"label": "Gulte",             "handle": "@GulteOfficial",    "id": None, "category": "Cinema News/Gossip"},
+    {"label": "123telugu",         "handle": "@123telugu",        "id": None, "category": "Cinema News/Reviews"},
+    {"label": "Great Andhra",      "handle": "@GreatAndhraOfficial","id": None, "category": "Cinema News/Gossip"},
+    {"label": "Telugu Filmnagar",  "handle": "@TeluguFilmnagar",  "id": None, "category": "Cinema News/Interviews"},
+    # ── Interviews / celebrity / talk ──
+    {"label": "Film Companion South","handle": "@FilmCompanionSouth","id": None, "category": "Interviews/Reviews"},
+    {"label": "Konda Anesh",       "handle": "@KondaAneshEnti",   "id": None, "category": "Interviews/Talk"},
+    # ── News channels' entertainment / lifestyle verticals ──
+    {"label": "TV9 Entertainment", "handle": "@tv9entertainment", "id": None, "category": "News-brand Entertainment"},
+    {"label": "ETV Life India",    "handle": "@etvlifeindia",     "id": None, "category": "News-brand Lifestyle"},
+    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None, "category": "News-brand Entertainment"},
 ]
 
 STOPWORDS = {
