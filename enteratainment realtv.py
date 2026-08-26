@@ -41,8 +41,8 @@ CHANNELS = [
     {"label": "Harsha Sai",        "handle": "@HarshaSai",        "id": "UC5GFurOJpOms46X6IBEebLg", "category": "Inspiring/Viral"},
     {"label": "Filmymoji",         "handle": "@Filmymoji",        "id": None, "category": "Film/Parody"},
     {"label": "Shanmukh Jaswanth", "handle": "@ShanmukhJaswanth", "id": "UCjbBFvK04b-O3foSNabdrOA", "category": "Web Series/Vlog"},
-    {"label": "Tej India",         "handle": "@TejIndia",         "id": None, "category": "Storytelling/Drama"},
-    {"label": "infobells Telugu",  "handle": "@infobellsTelugu",  "id": None, "category": "Kids"},
+    {"label": "Tej India",         "handle": "@Tejindiaoriginals",         "id": None, "category": "Storytelling/Drama"},
+    {"label": "infobells Telugu",  "handle": "@infobellstelugurhymes",  "id": None, "category": "Kids"},
     {"label": "Tips Telugu",       "handle": "@TipsTelugu",       "id": None, "category": "Film Music"},
     {"label": "Aditya Music",      "handle": "@adityamusic",      "id": None, "category": "Film Music"},
     # trendy-global format inspiration (localizable formats)
