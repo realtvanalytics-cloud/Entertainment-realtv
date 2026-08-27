@@ -43,28 +43,41 @@ PER_CHANNEL_CAP = 120   # max recent videos pulled per channel (keeps quota sane
 # Everything here is an editable starting point — refine freely.
 # ─────────────────────────────────────────────────────────────────────────────
 CHANNELS = [
-    # ── A. News-brand entertainment / infotainment branches (TELUGU only) ──
-    # Proof-of-concept: do Telugu news brands' entertainment arms perform?
-    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment", "id": None, "group": "A_newsbrand", "lane": "News-brand ENT"},
-    {"label": "ETV Life India",      "handle": "@etvlifeindia",     "id": None, "group": "A_newsbrand", "lane": "News-brand ENT"},
-    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand ENT"},
+    # ══════════════════════════════════════════════════════════════════════
+    # A. NEWS-BRAND ENTERTAINMENT ARMS — the proof-of-concept group.
+    # Major Telugu news/media brands' entertainment & themed sister channels.
+    # This is the model Real TV is weighing: an established news brand
+    # spinning off entertainment content. Editable — add/fix as needed.
+    # ══════════════════════════════════════════════════════════════════════
+    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ETV Plus India",      "handle": "@etvplusindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ETV Cinema",          "handle": "@etvcinema",         "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ETV Life India",      "handle": "@etvlifeindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ABN Entertainment",   "handle": "@ABNEntertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "V6 Life",             "handle": "@V6Life",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "NTV ENT",             "handle": "@NTVENT",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
 
+    # ══════════════════════════════════════════════════════════════════════
+    # B. THE THREE PRIORITY LANES — 4 channels each (demand + trend).
+    # ══════════════════════════════════════════════════════════════════════
     # ── B1. Movie updates / cinema-news (proven biggest lane in India) ──
-    {"label": "Tollywood Today",     "handle": "@TollywoodToday1",  "id": "UCsHThG1UJch6CXxlGpFx_Nw", "group": "B_lane", "lane": "Movie updates"},
-    {"label": "Gulte",               "handle": "@GulteOfficial",    "id": None, "group": "B_lane", "lane": "Movie updates"},
-    {"label": "123telugu",           "handle": "@123telugu",        "id": None, "group": "B_lane", "lane": "Movie updates"},
+    {"label": "Tollywood Today",     "handle": "@TollywoodToday1",   "id": "UCsHThG1UJch6CXxlGpFx_Nw", "group": "B_lane", "lane": "Movie updates"},
+    {"label": "Gulte",               "handle": "@GulteOfficial",     "id": None, "group": "B_lane", "lane": "Movie updates"},
+    {"label": "123telugu",           "handle": "@123telugu",         "id": None, "group": "B_lane", "lane": "Movie updates"},
     {"label": "Great Andhra",        "handle": "@GreatAndhraOfficial","id": None,"group": "B_lane", "lane": "Movie updates"},
 
     # ── B2. World/travel & human-interest (Telugu) ──
     {"label": "Telugu Travel Vlogger","handle": "@TeluguTravelVlogger","id": None,"group": "B_lane", "lane": "World/Travel & Human-interest"},
     {"label": "Vikram Aditya",       "handle": "@VikramAdityaVideos","id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Country Foods",       "handle": "@CountryFoods",     "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Country Foods",       "handle": "@CountryFoods",      "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Voice of Telugu 2.O", "handle": "@VoiceofTelugu2.O",  "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
 
     # ── B3. Conspiracies / investigations / strange-unexplained (Telugu) ──
     {"label": "A Touch Of Mystery Telugu","handle": "@ATouchOfMystery-Telugu","id": None,"group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "Telugu Facts",        "handle": "@TeluguFactswats",  "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "What The Fact Telugu","handle": "@WhatTheFactTelugu","id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "Telugu Real Facts",   "handle": "@Telugurealfacts",  "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Telugu Facts",        "handle": "@TeluguFactswats",   "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "What The Fact Telugu","handle": "@WhatTheFactTelugu", "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Telugu Real Facts",   "handle": "@Telugurealfacts",   "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
