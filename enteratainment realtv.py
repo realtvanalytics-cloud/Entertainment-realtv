@@ -54,7 +54,7 @@ CHANNELS = [
     {"label": "ETV Cinema",          "handle": "@etvcinema",         "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "ETV Life India",      "handle": "@etvlifeindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand arm"},
-    {"label": "ABNChitrajyothy",   "handle": "@ABNEntertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ABNChitrajyothy",   "handle": "@ABNChitrajyothy",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "V6 Life",             "handle": "@V6EntertainmentTelugu",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "NTV ENT",             "handle": "@NTVENT",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
 
