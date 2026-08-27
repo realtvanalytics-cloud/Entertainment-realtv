@@ -50,7 +50,6 @@ CHANNELS = [
     # spinning off entertainment content. Editable — add/fix as needed.
     # ══════════════════════════════════════════════════════════════════════
     {"label": "TV9 Entertainment",   "handle": "@tv9entertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
-    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"}
     {"label": "ETV Plus India",      "handle": "@etvplusindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "ETV Cinema",          "handle": "@etvcinema",         "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "ETV Life India",      "handle": "@etvlifeindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
