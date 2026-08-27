@@ -4,7 +4,7 @@ Real TV — Entertainment Sub-Channel Decision Report
 A ONE-TIME strategic report (not a live tracker) that answers:
 
   "Should Real TV launch an entertainment sub-channel branched off the
-   main news channel — and if so, which lane (world/travel & human-interest,
+   main news channel — and if so, which lane (world/travel & health,
    movie updates, or conspiracies/investigations) should it enter?"
 
 It studies two things from real public data:
@@ -50,33 +50,34 @@ CHANNELS = [
     # spinning off entertainment content. Editable — add/fix as needed.
     # ══════════════════════════════════════════════════════════════════════
     {"label": "TV9 Entertainment",   "handle": "@tv9entertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"}
     {"label": "ETV Plus India",      "handle": "@etvplusindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "ETV Cinema",          "handle": "@etvcinema",         "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "ETV Life India",      "handle": "@etvlifeindia",      "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand arm"},
-    {"label": "ABN Entertainment",   "handle": "@ABNEntertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
-    {"label": "V6 Life",             "handle": "@V6Life",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "ABNChitrajyothy",   "handle": "@ABNEntertainment",  "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
+    {"label": "V6 Life",             "handle": "@V6EntertainmentTelugu",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
     {"label": "NTV ENT",             "handle": "@NTVENT",            "id": None, "group": "A_newsbrand", "lane": "News-brand arm"},
 
     # ══════════════════════════════════════════════════════════════════════
     # B. THE THREE PRIORITY LANES — 4 channels each (demand + trend).
     # ══════════════════════════════════════════════════════════════════════
     # ── B1. Movie updates / cinema-news (proven biggest lane in India) ──
-    {"label": "Tollywood Today",     "handle": "@TollywoodToday1",   "id": "UCsHThG1UJch6CXxlGpFx_Nw", "group": "B_lane", "lane": "Movie updates"},
+    {"label": "Thyview",     "handle": "@thyview",   "id": None, "group": "B_lane", "lane": "Movie updates"},
     {"label": "Gulte",               "handle": "@GulteOfficial",     "id": None, "group": "B_lane", "lane": "Movie updates"},
-    {"label": "123telugu",           "handle": "@123telugu",         "id": None, "group": "B_lane", "lane": "Movie updates"},
-    {"label": "Great Andhra",        "handle": "@GreatAndhraOfficial","id": None,"group": "B_lane", "lane": "Movie updates"},
+    {"label": "All In One Film Updates 2.0",           "handle": "@AllInOneFilmUpdates2.0",         "id": None, "group": "B_lane", "lane": "Movie updates"},
+    {"label": "GreatAndhra",        "handle": "@greatandhranews","id": None,"group": "B_lane", "lane": "Movie updates"},
 
-    # ── B2. World/travel & human-interest (Telugu) ──
-    {"label": "Telugu Travel Vlogger","handle": "@TeluguTravelVlogger","id": None,"group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Vikram Aditya",       "handle": "@VikramAdityaVideos","id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Country Foods",       "handle": "@CountryFoods",      "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Voice of Telugu 2.O", "handle": "@VoiceofTelugu2.O",  "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    # ── B2. World/travel & health (Telugu) ──
+    {"label": "Telugu Travel Vlogger","handle": "@TeluguTravelVlogger","id": None,"group": "B_lane", "lane": "World/Travel & Health"},
+    {"label": "facts forever",       "handle": "@factsforever","id": None, "group": "B_lane", "lane": "World/Travel & Health"},
+    {"label": " TeluguOne Health",       "handle": "@teluguonehealth",      "id": None, "group": "B_lane", "lane": "World/Travel & Health"},
+    {"label": "Dr. Manthena Official", "handle": "@dr.manthenaofficial3931",  "id": None, "group": "B_lane", "lane": "World/Travel & Health"},
 
     # ── B3. Conspiracies / investigations / strange-unexplained (Telugu) ──
     {"label": "A Touch Of Mystery Telugu","handle": "@ATouchOfMystery-Telugu","id": None,"group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "Telugu Facts",        "handle": "@TeluguFactswats",   "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "What The Fact Telugu","handle": "@WhatTheFactTelugu", "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Think Deep",        "handle": "@ThinkDeep",   "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "VR Raja","handle": "@iamvrraja", "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
     {"label": "Telugu Real Facts",   "handle": "@Telugurealfacts",   "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
 ]
 
@@ -283,7 +284,7 @@ lighter content. The strongest lane by demand right now is
 **How to read the recommendation:**
 - **Proof tab** — do news brands actually succeed at this? Compare their
   branch performance and output.
-- **Lane opportunity** — which of your three lanes (world/travel & human-interest,
+- **Lane opportunity** — which of your three lanes (world/travel & health,
   movie updates, conspiracies/investigations) has the best demand vs
   saturation.
 - **Format & length** — how to produce for the chosen lane.
@@ -291,7 +292,7 @@ lighter content. The strongest lane by demand right now is
   momentum).
 
 Decide the lane on demand **and** fit with a newsroom's strengths: movie
-updates and investigations play to research/credibility; world/human-interest
+updates and investigations play to research/credibility; world/heatlh
 plays to storytelling. Avoid sensational clickbait in the investigations lane —
 framed as *"what's actually known,"* it protects the news brand instead of
 cheapening it.
@@ -453,7 +454,7 @@ it doesn't starve the main channel.</p>
 <p class="muted">High median views = proven demand. High engagement = loyal base,
 better for a new channel. Pick the lane strong on both that also fits a
 newsroom's strengths (research/credibility for movie updates & investigations;
-storytelling for world/human-interest).</p>
+storytelling for world/Health).</p>
 
 <h2>What's winning right now (top videos in the priority lanes)</h2>
 <table><tr><th>Lane</th><th>Channel</th><th>Title</th><th>Views</th><th>Eng.</th></tr>
