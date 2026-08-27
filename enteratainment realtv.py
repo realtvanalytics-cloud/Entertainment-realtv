@@ -1,23 +1,27 @@
 """
-Real TV — Telugu Content Strategy Engine
-----------------------------------------
-A STRATEGY tool (check occasionally, not daily). It answers:
-  "Which content lane should Real TV Entertainment enter, in what format,
-   at what time — based on what's demonstrably working right now?"
+Real TV — Entertainment Sub-Channel Decision Report
+---------------------------------------------------
+A ONE-TIME strategic report (not a live tracker) that answers:
 
-Four honest data layers (nothing fabricated):
-  1. Category demand board — top Telugu entertainment + trendy-global
-     channels grouped by format, ranked by real public performance.
-  2. Format & timing intelligence — Shorts vs long, ideal length bands,
-     best upload hours, read from what's winning.
-  3. Search demand (Google Trends) — rising vs steady Telugu topics,
-     region-filterable. Unofficial source; fails gracefully.
-  4. Market context — general Telugu-YouTube audience shape as CITED
-     ranges from published reports, clearly labelled as market context,
-     never presented as any channel's private viewer data.
+  "Should Real TV launch an entertainment sub-channel branched off the
+   main news channel — and if so, which lane (world/travel & human-interest,
+   movie updates, or conspiracies/investigations) should it enter?"
 
-Separate from the daily tracker app on purpose — different rhythm.
-Deploy on Streamlit Community Cloud. API key in Secrets, not here.
+It studies two things from real public data:
+  A. PROOF-OF-CONCEPT — how news-brand entertainment branches perform
+     (Telugu + global), so the "should we?" is answered with evidence.
+  B. LANE OPPORTUNITY — the three priority lanes, ranked by demand,
+     engagement, format, length, and 5-month trend direction.
+
+Trend method (honest): the YouTube API returns each video's CURRENT
+totals, not historical snapshots. So "5-month trend" here compares
+COHORTS of videos by the month they were POSTED — e.g. are videos
+posted recently out-performing older ones, is a lane's output rising,
+are Shorts taking over. It does NOT track one video's day-by-day climb
+(that needs going-forward logging). This cohort read is the correct
+tool for a market-entry decision.
+
+Dashboard + one-click HTML export. API key in Secrets, not here.
 """
 
 from datetime import datetime, timezone, timedelta
@@ -28,69 +32,53 @@ import streamlit as st
 
 IST = timezone(timedelta(hours=5, minutes=30))
 API_BASE = "https://www.googleapis.com/youtube/v3"
-ANALYTICS_WINDOW = 40  # recent videos per channel to analyse
+MONTHS_BACK = 5
+PER_CHANNEL_CAP = 120   # max recent videos pulled per channel (keeps quota sane)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CHANNELS — entertainment + trendy-global, each tagged by dominant format.
-# "category" is an editable judgment call; fix any tag you disagree with.
-# Fill "id" (UC...) for any that fail to resolve by handle (Share → Copy ID).
+# STUDY SET
+# group "A_newsbrand" = news-brand entertainment/infotainment branches (proof)
+# group "B_lane"      = the three priority lanes (opportunity)
+# Fill "id" (UC...) for any that fail to resolve by handle.
+# Everything here is an editable starting point — refine freely.
 # ─────────────────────────────────────────────────────────────────────────────
 CHANNELS = [
-    # The RIGHT competitor set for a NEWS BRAND extending into entertainment:
-    # (a) Tollywood cinema-news / gossip / interview channels, and
-    # (b) established news channels' own entertainment output.
-    # This is the space Real TV can own with its newsroom credibility —
-    # NOT pure comedy/sketch channels, which are a different business.
-    #
-    # label, handle, id, category
-    # ── Tollywood cinema-news & gossip ──
-    {"label": "Tollywood Today",   "handle": "@TollywoodToday1",  "id": "UCsHThG1UJch6CXxlGpFx_Nw", "category": "Cinema News/Gossip"},
-    {"label": "Gulte",             "handle": "@GulteOfficial",    "id": None, "category": "Cinema News/Gossip"},
-    {"label": "123telugu",         "handle": "@123telugu",        "id": None, "category": "Cinema News/Reviews"},
-    {"label": "Great Andhra",      "handle": "@GreatAndhraOfficial","id": None, "category": "Cinema News/Gossip"},
-    {"label": "Telugu Filmnagar",  "handle": "@TeluguFilmnagar",  "id": None, "category": "Cinema News/Interviews"},
-    # ── Interviews / celebrity / talk ──
-    {"label": "Film Companion South","handle": "@FilmCompanionSouth","id": None, "category": "Interviews/Reviews"},
-    {"label": "Konda Anesh",       "handle": "@KondaAneshEnti",   "id": None, "category": "Interviews/Talk"},
-    # ── News channels' entertainment / lifestyle verticals ──
-    {"label": "TV9 Entertainment", "handle": "@tv9entertainment", "id": None, "category": "News-brand Entertainment"},
-    {"label": "ETV Life India",    "handle": "@etvlifeindia",     "id": None, "category": "News-brand Lifestyle"},
-    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None, "category": "News-brand Entertainment"},
+    # ── A. News-brand entertainment / infotainment branches (Telugu) ──
+    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment", "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
+    {"label": "ETV Life India",      "handle": "@etvlifeindia",     "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
+    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
+    # ── A. News-brand infotainment branches (global proof-of-concept) ──
+    {"label": "BBC Reel",            "handle": "@bbcreel",          "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
+    {"label": "CNN Business",        "handle": "@CNNBusiness",      "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
+    {"label": "WSJ",                 "handle": "@wsj",              "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
+
+    # ── B1. World/travel & human-interest ──
+    {"label": "Great Big Story",     "handle": "@greatbigstory",    "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Drew Binsky",         "handle": "@drewbinsky",       "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Nas Daily",           "handle": "@nasdaily",         "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+
+    # ── B2. Movie updates / cinema-news ──
+    {"label": "Tollywood Today",     "handle": "@TollywoodToday1",  "id": "UCsHThG1UJch6CXxlGpFx_Nw", "group": "B_lane", "lane": "Movie updates"},
+    {"label": "Gulte",               "handle": "@GulteOfficial",    "id": None, "group": "B_lane", "lane": "Movie updates"},
+    {"label": "123telugu",           "handle": "@123telugu",        "id": None, "group": "B_lane", "lane": "Movie updates"},
+
+    # ── B3. Conspiracies / investigations / strange-unexplained ──
+    {"label": "MrBallen",            "handle": "@MrBallen",         "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "LEMMiNO",             "handle": "@LEMMiNO",          "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Fascinating Horror",  "handle": "@FascinatingHorror","id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
 ]
 
-STOPWORDS = {
-    "the","a","an","and","or","in","on","of","to","for","with","at","by",
-    "from","is","are","was","were","be","this","that","it","as","no","not",
-    "vs","ft","telugu","new","latest","video","full","part","ep","episode",
-}
-
 # ─────────────────────────────────────────────────────────────────────────────
-# General market context — CITED ranges from published industry reporting.
-# These are GENERAL Telugu / Indian YouTube market figures, shown as context
-# for planning. They are NOT any specific channel's private viewer data.
-# Edit/extend as you find better sources; keep the source next to each claim.
-# ─────────────────────────────────────────────────────────────────────────────
-MARKET_CONTEXT = [
-    ("Audience skews young", "~65–75% of Indian YouTube viewing is 18–34; regional-language audiences skew slightly younger.", "Industry reports (general market)"),
-    ("Mobile-first", "~90%+ of Indian YouTube watch time is on mobile; design thumbnails/titles for small screens.", "Industry reports (general market)"),
-    ("Prime windows", "Viewing peaks ~1–2 PM (lunch) and ~8–11 PM (post-dinner) IST on weekdays; heavier on weekends.", "General viewing-pattern reporting"),
-    ("Language reach", "Telugu is among the largest Indian-language audiences on YouTube; AP+Telangana plus diaspora widen the base.", "General market"),
-    ("Shorts as top-of-funnel", "Shorts drive cheap reach and subscriber capture; long-form and lives carry higher ad RPM.", "Platform monetization guidance"),
-]
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-def get_api_key() -> str:
+def get_api_key():
     try:
         return st.secrets["YT_API_KEY"]
     except Exception:
-        st.error('No API key. In Streamlit → Settings → Secrets add:  '
-                 'YT_API_KEY = "your-key-here"')
+        st.error('No API key. In Streamlit → Settings → Secrets add:  YT_API_KEY = "your-key"')
         st.stop()
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def resolve_channel(channel: dict, api_key: str):
+def resolve_channel(channel, api_key):
     params = {"part": "snippet,contentDetails,statistics", "key": api_key}
     if channel.get("id"):
         params["id"] = channel["id"]
@@ -102,11 +90,10 @@ def resolve_channel(channel: dict, api_key: str):
     items = r.json().get("items", [])
     if not items:
         hint = channel.get("id") or channel.get("handle")
-        return {"label": channel["label"], "error": f"not found ({hint}) — fix id/handle"}
+        return {"label": channel["label"], "error": f"not found ({hint})"}
     c = items[0]
     return {
-        "label": channel["label"],
-        "category": channel["category"],
+        "label": channel["label"], "group": channel["group"], "lane": channel["lane"],
         "uploads_playlist": c["contentDetails"]["relatedPlaylists"]["uploads"],
         "subs": int(c["statistics"].get("subscriberCount", 0)),
         "total_views": int(c["statistics"].get("viewCount", 0)),
@@ -115,7 +102,7 @@ def resolve_channel(channel: dict, api_key: str):
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def fetch_recent_uploads(uploads_playlist: str, api_key: str, max_items: int):
+def fetch_recent_uploads(uploads_playlist, api_key, max_items):
     ids, token = [], None
     while len(ids) < max_items:
         params = {"part": "contentDetails", "playlistId": uploads_playlist,
@@ -135,8 +122,6 @@ def fetch_recent_uploads(uploads_playlist: str, api_key: str, max_items: int):
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def fetch_video_details(video_ids, api_key):
-    if not video_ids:
-        return []
     out = []
     for i in range(0, len(video_ids), 50):
         chunk = video_ids[i:i+50]
@@ -165,201 +150,318 @@ def humanize(n):
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def build(api_key: str, window: int):
+def build(api_key, months_back, cap):
     now = datetime.now(IST)
-    vrows, errors = [], []
+    cutoff = now - timedelta(days=months_back*30)
+    vrows, crows, errors = [], [], []
+
     for channel in CHANNELS:
         ch = resolve_channel(channel, api_key)
         if ch.get("error"):
             errors.append(f"{channel['label']}: {ch['error']}")
             continue
         vids = fetch_video_details(
-            fetch_recent_uploads(ch["uploads_playlist"], api_key, window), api_key)
+            fetch_recent_uploads(ch["uploads_playlist"], api_key, cap), api_key)
+        kept = 0
         for v in vids:
+            published = datetime.fromisoformat(
+                v["snippet"]["publishedAt"].replace("Z", "+00:00")).astimezone(IST)
+            if published < cutoff:
+                continue
+            kept += 1
             stats = v.get("statistics", {})
             views = int(stats.get("viewCount", 0))
             likes = int(stats.get("likeCount", 0))
             comments = int(stats.get("commentCount", 0))
             dur = parse_duration(v.get("contentDetails", {}).get("duration", ""))
-            published = datetime.fromisoformat(
-                v["snippet"]["publishedAt"].replace("Z", "+00:00")).astimezone(IST)
-            length_band = ("Short (≤1m)" if 0 < dur <= 60 else
-                           "Mid (1–8m)" if dur <= 480 else
-                           "Long (8–20m)" if dur <= 1200 else "XLong (20m+)")
             vrows.append({
-                "Channel": ch["label"], "Category": ch["category"],
+                "Channel": ch["label"], "Group": ch["group"], "Lane": ch["lane"],
                 "Title": v["snippet"]["title"], "Views": views,
                 "Likes": likes, "Comments": comments,
                 "Engagement %": round((likes+comments)/views*100, 2) if views else 0,
-                "Length": length_band, "Hour": published.hour,
-                "Weekday": published.strftime("%a"),
+                "Type": "Short" if 0 < dur <= 60 else "Long",
+                "Length_s": dur,
+                "Month": published.strftime("%Y-%m"),
+                "Posted": published,
                 "Link": f"https://youtu.be/{v['id']}",
             })
-    return pd.DataFrame(vrows), errors, now
+        crows.append({"Channel": ch["label"], "Group": ch["group"], "Lane": ch["lane"],
+                      "Subscribers": ch["subs"], "Videos in window": kept})
+    return pd.DataFrame(vrows), pd.DataFrame(crows), errors, now
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Google Trends (unofficial pytrends). Optional; fails gracefully.
-# ─────────────────────────────────────────────────────────────────────────────
-@st.cache_data(ttl=21600, show_spinner=False)
-def fetch_trends(geo: str):
-    try:
-        from pytrends.request import TrendReq
-    except Exception:
-        return None, "pytrends not installed — add 'pytrends' to requirements.txt to enable this tab."
-    try:
-        py = TrendReq(hl="en-US", tz=330)
-        py.build_payload(kw_list=["Telugu"], timeframe="now 7-d", geo=geo)
-        rising = py.related_queries().get("Telugu", {}).get("rising")
-        realtime = None
-        try:
-            realtime = py.trending_searches(pn="india")
-        except Exception:
-            pass
-        return {"rising": rising, "trending_india": realtime}, None
-    except Exception as e:
-        return None, f"Trends fetch failed (Google rate-limit or change): {e}"
+def length_band(sec):
+    if sec <= 60:   return "Short (≤1m)"
+    if sec <= 480:  return "Mid (1–8m)"
+    if sec <= 1200: return "Long (8–20m)"
+    return "XLong (20m+)"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # UI
 # ─────────────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title="Real TV — Content Strategy Engine", layout="wide")
-st.title("Real TV — Telugu Content Strategy Engine")
-st.caption(
-    "A strategy tool for deciding what Real TV Entertainment should make. "
-    "All channel numbers are real public data; market context is cited general-"
-    "market reporting, not any channel's private viewer data."
-)
+st.set_page_config(page_title="Real TV — Entertainment Decision Report", layout="wide")
+st.title("Real TV — Entertainment Sub-Channel Decision Report")
+st.caption("A one-time strategic report on whether to branch an entertainment "
+           "sub-channel off the main news channel, and which lane to enter. "
+           "Real public data; trend = post-month cohorts, not per-video history.")
 
 with st.sidebar:
     st.header("Settings")
-    trends_geo = st.selectbox(
-        "Trends region",
-        options=["IN-TG", "IN-AP", "IN"],
-        format_func=lambda g: {"IN-TG": "Telangana", "IN-AP": "Andhra Pradesh", "IN": "All India"}[g],
-    )
-    if st.button("Refresh data", use_container_width=True):
+    months = st.slider("Months to look back", 3, 6, MONTHS_BACK)
+    cap = st.slider("Max videos per channel", 40, 200, PER_CHANNEL_CAP, step=20,
+                    help="Higher = more complete but slower and more quota.")
+    if st.button("Rebuild report", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
-    st.caption("Data caches 24h — this is a check-occasionally tool, not daily.")
+    st.caption("Caches 24h. First build across all channels is slow (a few min).")
 
 api_key = get_api_key()
-with st.spinner("Analysing the Telugu entertainment landscape…"):
-    vdf, errors, now = build(api_key, ANALYTICS_WINDOW)
+with st.spinner("Building the report — pulling ~5 months across all channels…"):
+    vdf, cdf, errors, now = build(api_key, months, cap)
 
-st.caption(f"Updated {now.strftime('%d %b %Y, %I:%M %p IST')} · "
-           f"last {ANALYTICS_WINDOW} uploads per channel")
+st.caption(f"Built {now.strftime('%d %b %Y, %I:%M %p IST')} · {months}-month window")
 if errors:
     with st.expander(f"⚠️ {len(errors)} channel(s) couldn't be read — fix handle/id"):
         for e in errors:
             st.write("•", e)
 
 if vdf.empty:
-    st.warning("No channel data resolved yet. Fix the handles/IDs above and refresh.")
+    st.warning("No data resolved. Fix handles/IDs in the config and rebuild.")
     st.stop()
 
-t1, t2, t3, t4 = st.tabs([
-    "📊 Category demand",
-    "🎬 Format & timing",
-    "🔎 Search demand",
-    "🌏 Market context",
+vdf["Length band"] = vdf["Length_s"].apply(length_band)
+
+tabs = st.tabs([
+    "🧭 Verdict",
+    "✅ Proof: news-brand branches",
+    "🎯 Lane opportunity",
+    "🎬 Format & length",
+    "📈 5-month trend",
+    "⬇️ Export",
 ])
 
-# ---- Category demand ----
-with t1:
-    st.subheader("Which content lane performs best")
-    st.caption("Grouped by format. Median views is the fairer signal than average "
-               "(one viral video won't distort it).")
-    cat = (vdf.groupby("Category")
-           .agg(Channels=("Channel", "nunique"),
-                Videos=("Title", "size"),
-                **{"Median views": ("Views", "median"),
-                   "Avg engagement %": ("Engagement %", "mean")})
-           .reset_index()
-           .sort_values("Median views", ascending=False))
-    cat["Median views"] = cat["Median views"].round().astype(int).apply(humanize)
-    cat["Avg engagement %"] = cat["Avg engagement %"].round(2)
-    st.dataframe(cat, use_container_width=True, hide_index=True)
-    st.markdown("**Read it like this:** high median views = proven demand for the format; "
-                "high engagement % = loyal, active audience (better for a new channel to "
-                "build a base). The sweet spot for launching Real TV Entertainment is a "
-                "category strong on *both* that isn't already saturated by a dominant player.")
+# ── Verdict ──
+with tabs[0]:
+    st.subheader("The decision, from the data")
+    lanes_B = vdf[vdf["Group"] == "B_lane"]
+    lane_summary = (lanes_B.groupby("Lane")
+                    .agg(Videos=("Title", "size"),
+                         **{"Median views": ("Views", "median"),
+                            "Avg engagement %": ("Engagement %", "mean")})
+                    .reset_index().sort_values("Median views", ascending=False))
+    best_lane = lane_summary.iloc[0]["Lane"] if not lane_summary.empty else "—"
 
-    st.divider()
-    st.markdown("**🔥 Top 15 individual videos (what's actually winning)**")
-    top = vdf.sort_values("Views", ascending=False).head(15)[
-        ["Channel", "Category", "Title", "Views", "Engagement %", "Length", "Link"]].copy()
-    top["Views"] = top["Views"].apply(humanize)
-    st.dataframe(top, use_container_width=True, hide_index=True,
-                 column_config={"Link": st.column_config.LinkColumn("Watch", display_text="▶")})
+    A = vdf[vdf["Group"] == "A_newsbrand"]
+    a_median = int(A["Views"].median()) if not A.empty else 0
 
-# ---- Format & timing ----
-with t2:
-    st.subheader("What format and when")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("**Length bands by median views**")
-        lb = (vdf.groupby("Length")["Views"].median().round().astype(int)
-              .reset_index().rename(columns={"Views": "Median views"}))
-        order = {"Short (≤1m)":0,"Mid (1–8m)":1,"Long (8–20m)":2,"XLong (20m+)":3}
-        lb["_o"] = lb["Length"].map(order)
-        lb = lb.sort_values("_o").drop(columns="_o")
-        lb["Median views"] = lb["Median views"].apply(humanize)
-        st.dataframe(lb, use_container_width=True, hide_index=True)
-    with c2:
-        st.markdown("**Best upload hours (IST) by median views**")
-        hr = (vdf.groupby("Hour")["Views"].median().round().astype(int)
-              .reset_index().rename(columns={"Views":"Median views","Hour":"Hour (IST)"})
-              .sort_values("Median views", ascending=False).head(6))
-        hr["Median views"] = hr["Median views"].apply(humanize)
-        st.dataframe(hr, use_container_width=True, hide_index=True)
-    st.divider()
-    st.markdown("**Best weekdays by median views**")
-    wd = (vdf.groupby("Weekday")["Views"].median().round().astype(int)
-          .reset_index().rename(columns={"Views":"Median views"}))
-    wd_order = {"Mon":0,"Tue":1,"Wed":2,"Thu":3,"Fri":4,"Sat":5,"Sun":6}
-    wd["_o"] = wd["Weekday"].map(wd_order)
-    wd = wd.sort_values("_o").drop(columns="_o")
-    wd["Median views"] = wd["Median views"].apply(humanize)
-    st.dataframe(wd, use_container_width=True, hide_index=True)
-    st.caption("Timing here is correlational — big topics drive both when creators post "
-               "and how views land. Treat as a pattern to test, not a guarantee.")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Best-performing lane", best_lane)
+    c2.metric("News-brand branch median views", humanize(a_median))
+    c3.metric("Videos analysed", len(vdf))
 
-# ---- Search demand (Trends) ----
-with t3:
-    st.subheader("What people are searching for")
-    st.caption("Live search demand via Google Trends (unofficial source — may rate-limit).")
-    trends, terr = fetch_trends(trends_geo)
-    if terr:
-        st.info(terr)
-        st.markdown("Even without live Trends, the Category and Format tabs already show "
-                    "demand through *performance*. Trends adds a leading indicator on top.")
+    st.markdown(f"""
+**Should Real TV launch an entertainment branch?**  
+The evidence to weigh sits in the next tabs, but in short: news-brand
+entertainment branches in this sample pull a median of **{humanize(a_median)}**
+views per video — proof the model *can* work when a news brand extends into
+lighter content. The strongest lane by demand right now is
+**{best_lane}**.
+
+**How to read the recommendation:**
+- **Proof tab** — do news brands actually succeed at this? Compare their
+  branch performance and output.
+- **Lane opportunity** — which of your three lanes (world/travel & human-interest,
+  movie updates, conspiracies/investigations) has the best demand vs
+  saturation.
+- **Format & length** — how to produce for the chosen lane.
+- **5-month trend** — is that lane rising or fading (enter something with
+  momentum).
+
+Decide the lane on demand **and** fit with a newsroom's strengths: movie
+updates and investigations play to research/credibility; world/human-interest
+plays to storytelling. Avoid sensational clickbait in the investigations lane —
+framed as *"what's actually known,"* it protects the news brand instead of
+cheapening it.
+""")
+
+# ── Proof: news-brand branches ──
+with tabs[1]:
+    st.subheader("Do news-brand entertainment branches actually work?")
+    A = vdf[vdf["Group"] == "A_newsbrand"]
+    if A.empty:
+        st.info("No news-brand branch data resolved.")
     else:
-        rising = trends.get("rising")
-        if rising is not None and not rising.empty:
-            st.markdown("**Rising Telugu-related searches (last 7 days)**")
-            st.dataframe(rising.head(15), use_container_width=True, hide_index=True)
-        else:
-            st.caption("No rising-query data returned this run.")
-        ti = trends.get("trending_india")
-        if ti is not None and not ti.empty:
-            st.markdown("**Trending searches — India (today)**")
-            st.dataframe(ti.head(15), use_container_width=True, hide_index=True)
+        by_ch = (A.groupby(["Channel", "Lane"])
+                 .agg(Videos=("Title", "size"),
+                      **{"Median views": ("Views", "median"),
+                         "Avg engagement %": ("Engagement %", "mean")})
+                 .reset_index().sort_values("Median views", ascending=False))
+        by_ch["Median views"] = by_ch["Median views"].round().astype(int).apply(humanize)
+        by_ch["Avg engagement %"] = by_ch["Avg engagement %"].round(2)
+        st.dataframe(by_ch, use_container_width=True, hide_index=True)
+        st.caption("Telugu vs global branches. Global examples prove the format at "
+                   "scale; Telugu examples show what already lands in-language. If "
+                   "branches sustain solid median views, the model is validated.")
+        st.markdown("**Top branch videos (what these news brands do well)**")
+        top = A.sort_values("Views", ascending=False).head(12)[
+            ["Channel", "Title", "Views", "Engagement %", "Type", "Link"]].copy()
+        top["Views"] = top["Views"].apply(humanize)
+        st.dataframe(top, use_container_width=True, hide_index=True,
+                     column_config={"Link": st.column_config.LinkColumn("Watch", display_text="▶")})
 
-# ---- Market context ----
-with t4:
-    st.subheader("General Telugu-YouTube market context")
-    st.caption("Cited general-market ranges to inform planning. These describe the broad "
-               "Telugu/Indian YouTube audience — NOT any specific channel's private viewers.")
-    for title, detail, source in MARKET_CONTEXT:
-        st.markdown(f"**{title}** — {detail}")
-        st.caption(f"Source: {source}")
+# ── Lane opportunity ──
+with tabs[2]:
+    st.subheader("Which lane to enter")
+    B = vdf[vdf["Group"] == "B_lane"]
+    lane = (B.groupby("Lane")
+            .agg(Channels=("Channel", "nunique"), Videos=("Title", "size"),
+                 **{"Median views": ("Views", "median"),
+                    "Avg engagement %": ("Engagement %", "mean")})
+            .reset_index().sort_values("Median views", ascending=False))
+    disp = lane.copy()
+    disp["Median views"] = disp["Median views"].round().astype(int).apply(humanize)
+    disp["Avg engagement %"] = disp["Avg engagement %"].round(2)
+    st.dataframe(disp, use_container_width=True, hide_index=True)
+    st.markdown("**How to read it:** high median views = proven demand; high "
+                "engagement = loyal, active audience (better base for a new channel). "
+                "The best entry lane is strong on both but not saturated by one giant.")
     st.divider()
-    st.markdown(
-        "**How to use this whole engine (the one-line version):** pick a category that's "
-        "high on both median views and engagement but not owned by one giant, produce in the "
-        "length band that wins there, post in the top hours/weekdays, and use the Search tab "
-        "to jump on rising topics before rivals. Validate with Real TV's own Studio numbers "
-        "once you have a few uploads live."
-    )
+    st.markdown("**Top videos per lane**")
+    for lane_name in B["Lane"].unique():
+        st.markdown(f"**{lane_name}**")
+        sub = B[B["Lane"] == lane_name].sort_values("Views", ascending=False).head(6)[
+            ["Channel", "Title", "Views", "Engagement %", "Type", "Link"]].copy()
+        sub["Views"] = sub["Views"].apply(humanize)
+        st.dataframe(sub, use_container_width=True, hide_index=True,
+                     column_config={"Link": st.column_config.LinkColumn("Watch", display_text="▶")})
+
+# ── Format & length ──
+with tabs[3]:
+    st.subheader("What format and length wins, per lane")
+    B = vdf[vdf["Group"] == "B_lane"]
+    order = {"Short (≤1m)":0,"Mid (1–8m)":1,"Long (8–20m)":2,"XLong (20m+)":3}
+    for lane_name in B["Lane"].unique():
+        st.markdown(f"**{lane_name}**")
+        sub = B[B["Lane"] == lane_name]
+        lb = (sub.groupby("Length band")["Views"].median().round().astype(int)
+              .reset_index().rename(columns={"Views": "Median views"}))
+        lb["_o"] = lb["Length band"].map(order)
+        lb = lb.sort_values("_o").drop(columns="_o")
+        shorts_share = round((sub["Type"] == "Short").mean() * 100)
+        lb["Median views"] = lb["Median views"].apply(humanize)
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            st.dataframe(lb, use_container_width=True, hide_index=True)
+        with c2:
+            st.metric("Shorts share", f"{shorts_share}%")
+        st.divider()
+
+# ── 5-month trend ──
+with tabs[4]:
+    st.subheader("How the trend is moving (post-month cohorts)")
+    st.caption("Median views by the month a video was POSTED. Rising line = the lane "
+               "is gaining traction; also watch whether output (video count) is growing.")
+    B = vdf[vdf["Group"] == "B_lane"]
+    pivot = (B.groupby(["Month", "Lane"])["Views"].median().round().astype(int)
+             .reset_index())
+    if not pivot.empty:
+        wide = pivot.pivot(index="Month", columns="Lane", values="Views").sort_index()
+        st.line_chart(wide)
+        st.caption("Median views per posted-month, by lane.")
+        vol = (B.groupby(["Month", "Lane"])["Title"].size().reset_index()
+               .rename(columns={"Title": "Videos"}))
+        wide_vol = vol.pivot(index="Month", columns="Lane", values="Videos").sort_index()
+        st.markdown("**Output volume by month (are creators leaning in?)**")
+        st.bar_chart(wide_vol)
+    else:
+        st.info("Not enough data to chart trend.")
+
+# ── Export ──
+with tabs[5]:
+    st.subheader("Export the report")
+    st.caption("Download a standalone HTML report (opens in any browser, printable to PDF).")
+
+    B = vdf[vdf["Group"] == "B_lane"]
+    A = vdf[vdf["Group"] == "A_newsbrand"]
+    lane = (B.groupby("Lane").agg(Videos=("Title","size"),
+            median=("Views","median"), eng=("Engagement %","mean")).reset_index()
+            .sort_values("median", ascending=False))
+    best_lane = lane.iloc[0]["Lane"] if not lane.empty else "—"
+    a_median = int(A["Views"].median()) if not A.empty else 0
+
+    lane_rows = "".join(
+        f"<tr><td>{r.Lane}</td><td>{int(r.Videos)}</td>"
+        f"<td>{humanize(int(r.median))}</td><td>{r.eng:.2f}%</td></tr>"
+        for r in lane.itertuples())
+
+    top_overall = B.sort_values("Views", ascending=False).head(15)
+    top_rows = "".join(
+        f"<tr><td>{row.Lane}</td><td>{row.Channel}</td>"
+        f"<td>{row.Title[:70]}</td><td>{humanize(row.Views)}</td>"
+        f"<td>{row['Engagement %']:.1f}%</td></tr>"
+        for _, row in top_overall.iterrows())
+
+    html = f"""<!doctype html><html><head><meta charset="utf-8">
+<title>Real TV — Entertainment Decision Report</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:900px;
+margin:40px auto;padding:0 20px;color:#1a1a1a;line-height:1.5}}
+h1{{border-bottom:3px solid #c00;padding-bottom:8px}}
+h2{{margin-top:32px;color:#c00}}
+table{{border-collapse:collapse;width:100%;margin:12px 0}}
+th,td{{border:1px solid #ddd;padding:8px;text-align:left;font-size:14px}}
+th{{background:#f4f4f4}}
+.box{{background:#f9f9f9;border-left:4px solid #c00;padding:12px 16px;margin:16px 0}}
+.muted{{color:#666;font-size:13px}}
+</style></head><body>
+<h1>Real TV — Entertainment Sub-Channel Decision Report</h1>
+<p class="muted">Generated {now.strftime('%d %b %Y')} · {months}-month window ·
+{len(vdf)} videos across {vdf['Channel'].nunique()} channels · public data.
+Trend = post-month cohorts, not per-video history.</p>
+
+<div class="box">
+<b>Headline:</b> News-brand entertainment branches in this sample pull a median
+of <b>{humanize(a_median)}</b> views/video — the model can work. The strongest
+lane by current demand is <b>{best_lane}</b>.
+</div>
+
+<h2>Should we launch the branch?</h2>
+<p>Evidence supports a <b>yes, with discipline</b>. News brands hold advantages
+pure entertainers lack: an existing audience to cross-promote, newsroom research
+capacity, credibility, and shared production resources. The risk is brand
+dilution — the investigations/strange-stories lane must be framed as
+<i>"what's actually known,"</i> not sensational clickbait, to protect the news
+brand. Launch as a real editorial product with its own standards, resourced so
+it doesn't starve the main channel.</p>
+
+<h2>Which lane? (ranked by demand)</h2>
+<table><tr><th>Lane</th><th>Videos</th><th>Median views</th><th>Avg engagement</th></tr>
+{lane_rows}</table>
+<p class="muted">High median views = proven demand. High engagement = loyal base,
+better for a new channel. Pick the lane strong on both that also fits a
+newsroom's strengths (research/credibility for movie updates & investigations;
+storytelling for world/human-interest).</p>
+
+<h2>What's winning right now (top videos in the priority lanes)</h2>
+<table><tr><th>Lane</th><th>Channel</th><th>Title</th><th>Views</th><th>Eng.</th></tr>
+{top_rows}</table>
+
+<h2>Recommendation</h2>
+<p>Enter <b>{best_lane}</b> first if it also suits the team's strengths; otherwise
+choose the highest-demand lane that does. Produce in the length band that wins
+for that lane (see dashboard Format tab), seed the sub-channel using the main
+news channel's existing reach, and hold entertainment content to the same
+factual standard as the newsroom. Re-run this report every 1–2 months to watch
+the trend shift.</p>
+
+<p class="muted">Prepared for Real TV Telugu · strategy input, not a guarantee —
+validate with the sub-channel's own YouTube Studio data once live.</p>
+</body></html>"""
+
+    st.download_button("⬇️ Download HTML report", data=html,
+                       file_name=f"realtv_entertainment_report_{now.strftime('%Y%m%d')}.html",
+                       mime="text/html", use_container_width=True)
+    st.caption("Open the file → Print → Save as PDF for a shareable PDF.")
+    with st.expander("Preview the report HTML"):
+        st.code(html[:1500] + "…", language="html")
