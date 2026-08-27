@@ -43,29 +43,28 @@ PER_CHANNEL_CAP = 120   # max recent videos pulled per channel (keeps quota sane
 # Everything here is an editable starting point — refine freely.
 # ─────────────────────────────────────────────────────────────────────────────
 CHANNELS = [
-    # ── A. News-brand entertainment / infotainment branches (Telugu) ──
-    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment", "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
-    {"label": "ETV Life India",      "handle": "@etvlifeindia",     "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
-    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand ENT (Telugu)"},
-    # ── A. News-brand infotainment branches (global proof-of-concept) ──
-    {"label": "BBC Reel",            "handle": "@bbcreel",          "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
-    {"label": "CNN Business",        "handle": "@CNNBusiness",      "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
-    {"label": "WSJ",                 "handle": "@wsj",              "id": None, "group": "A_newsbrand", "lane": "News-brand ENT (Global)"},
+    # ── A. News-brand entertainment / infotainment branches (TELUGU only) ──
+    # Proof-of-concept: do Telugu news brands' entertainment arms perform?
+    {"label": "TV9 Entertainment",   "handle": "@tv9entertainment", "id": None, "group": "A_newsbrand", "lane": "News-brand ENT"},
+    {"label": "ETV Life India",      "handle": "@etvlifeindia",     "id": None, "group": "A_newsbrand", "lane": "News-brand ENT"},
+    {"label": "Sakshi Entertainment","handle": "@SakshiEntertainment","id": None,"group": "A_newsbrand", "lane": "News-brand ENT"},
 
-    # ── B1. World/travel & human-interest ──
-    {"label": "Great Big Story",     "handle": "@greatbigstory",    "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Drew Binsky",         "handle": "@drewbinsky",       "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-    {"label": "Nas Daily",           "handle": "@nasdaily",         "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
-
-    # ── B2. Movie updates / cinema-news ──
+    # ── B1. Movie updates / cinema-news (proven biggest lane in India) ──
     {"label": "Tollywood Today",     "handle": "@TollywoodToday1",  "id": "UCsHThG1UJch6CXxlGpFx_Nw", "group": "B_lane", "lane": "Movie updates"},
     {"label": "Gulte",               "handle": "@GulteOfficial",    "id": None, "group": "B_lane", "lane": "Movie updates"},
     {"label": "123telugu",           "handle": "@123telugu",        "id": None, "group": "B_lane", "lane": "Movie updates"},
+    {"label": "Great Andhra",        "handle": "@GreatAndhraOfficial","id": None,"group": "B_lane", "lane": "Movie updates"},
 
-    # ── B3. Conspiracies / investigations / strange-unexplained ──
-    {"label": "MrBallen",            "handle": "@MrBallen",         "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "LEMMiNO",             "handle": "@LEMMiNO",          "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
-    {"label": "Fascinating Horror",  "handle": "@FascinatingHorror","id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    # ── B2. World/travel & human-interest (Telugu) ──
+    {"label": "Telugu Travel Vlogger","handle": "@TeluguTravelVlogger","id": None,"group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Vikram Aditya",       "handle": "@VikramAdityaVideos","id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+    {"label": "Country Foods",       "handle": "@CountryFoods",     "id": None, "group": "B_lane", "lane": "World/Travel & Human-interest"},
+
+    # ── B3. Conspiracies / investigations / strange-unexplained (Telugu) ──
+    {"label": "A Touch Of Mystery Telugu","handle": "@ATouchOfMystery-Telugu","id": None,"group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Telugu Facts",        "handle": "@TeluguFactswats",  "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "What The Fact Telugu","handle": "@WhatTheFactTelugu","id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
+    {"label": "Telugu Real Facts",   "handle": "@Telugurealfacts",  "id": None, "group": "B_lane", "lane": "Conspiracies/Investigations"},
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -300,9 +299,9 @@ with tabs[1]:
         by_ch["Median views"] = by_ch["Median views"].round().astype(int).apply(humanize)
         by_ch["Avg engagement %"] = by_ch["Avg engagement %"].round(2)
         st.dataframe(by_ch, use_container_width=True, hide_index=True)
-        st.caption("Telugu vs global branches. Global examples prove the format at "
-                   "scale; Telugu examples show what already lands in-language. If "
-                   "branches sustain solid median views, the model is validated.")
+        st.caption("Telugu news brands' entertainment arms. If these branches "
+                   "sustain solid median views, the model is validated for a "
+                   "Telugu news brand specifically — the audience you actually serve.")
         st.markdown("**Top branch videos (what these news brands do well)**")
         top = A.sort_values("Views", ascending=False).head(12)[
             ["Channel", "Title", "Views", "Engagement %", "Type", "Link"]].copy()
